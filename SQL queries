@@ -1,0 +1,96 @@
+-- * 1  print two columns name and IncreasedSalary - salary increased by 10% of all employees (expected columns - name, IncreasedSalary)
+
+select name, salary * 1.1  as 'IncreasedSalary'
+from employees e;
+
+-- * 2 retrieve the name and email of all employees that don't have manager (expected columns - name, email)
+
+select name, email
+from employees e 
+where ManagerId is null;
+
+-- * 3 retrieve id and names of skills that contain 'Java' (expected columns - id, name)
+
+select id, name
+from skills s 
+where name like '%java%';
+
+-- * 4 retrieve id, fromDate and toDate of vacations with a status of 'PENDING' (expected columns - id, FromDate, ToDate )
+
+select id, fromdate, todate
+from vacations v 
+where status = 'pending';
+
+-- * 5 retrieve the names and salaries of all employees that have a salary of less than 1000 or exactly 2000 (expected columns - name, salary)
+
+select name, salary
+from employees e 
+where salary < 1000 or salary = 2000;
+
+-- * 6 retrieve the names of the first 10 employees that joined the company (expected columns - name)
+
+select name
+from employees e 
+order by hiredate asc 
+limit 10;
+
+-- * 7 retrieve the names of the last 10 employees that joined the company (expected columns - name)
+
+select name
+from employees e 
+order by hiredate desc
+limit 10;
+
+-- * 8 retrieve ids of the last 2 requested vacations in 2009 (expected columns - id)
+
+select id 
+from vacations v 
+WHERE RequestDate  between '2009-01-01' and '2009-12-31'
+order by RequestDate desc
+limit 2; 
+
+-- * 9 retrieve employeeids that have requested a vacation in 2013 (expected columns - EmployeeId, requestdate)
+
+select employeeid, requestdate
+from vacations v 
+WHERE RequestDate  between '2013-01-01' and '2013-12-31';
+
+-- * 10 retrieve the names of all vendors whose name starts with 'M'(expected columns - name)
+
+select name 
+from vendors v 
+where name like 'M%';
+
+-- * 11 Изведете всички имена на служители, които съдържат ov ,но не завършват на него. (expected columns - Name)
+
+select name
+from employees e 
+where name like '%ov_';               '%ov_%' - какво ще стане с фамилия Минковска ?
+
+-- * 12 retrieve the number of managers (expected columns - cnt)
+
+SELECT COUNT(DISTINCT ManagerId) cnt
+FROM employees e ;
+
+right - 
+where name like '%ov% and name not like '%ov'
+
+-- * 13 Изведете ИД-тата на позициите/тайтълите и по колко служителя има за всеки един от тях (expected columns - TitleId, CountOfEmployees)
+
+SELECT distinct titleid, count(id) as CountOfEmployees
+FROM employees e 
+GROUP by titleid;
+
+--	* 14 Изведете бройката на служителите, които са ползвали отпуск през 2009-та (expected columns - cnt)
+ select count(distinct employeeid) as cnt
+ FROM vacations
+ where status = 'approved'
+ and (
+ 	FromDate between '2009-01-01' and '2009-12-31' and  todate between '2009-01-01' and '2009-12-31' -- 1
+ 	or FromDate < '2009-01-01' and todate between '2009-01-01' and '2009-12-31' -- 2
+ 	or FromDate between '2009-01-01' and '2009-12-31' and todate >= '2010-01-01' -- 3
+ 	or FromDate < '2009-01-01' and todate >= '2010-01-01' -- 4
+)
+ select count(distinct employeeid) as cnt
+ FROM vacations
+ where status = 'approved'  and FromDate  < '2010-01-01' and todate >= '2009-01-01'
