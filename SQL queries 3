@@ -1,0 +1,35 @@
+-- * 1 Print the names of the employees that have a SQL skill (expected columns - name)
+
+SELECT e.Name 
+FROM employees e 
+JOIN employee_skills es on es.EmployeeId  = e.Id 
+JOIN skills s ON s.Id = es.SkillId 
+WHERE s.name LIKE '%SQL%';
+
+
+-- * 2 Print all employees that have more skills than certificates (expected columns - EmplName, NumberOfSkills, NumberOfCert)
+
+
+select e.Name AS EmplName,COUNT(DISTINCT es.SkillId) AS NumberOfSkills,COUNT(DISTINCT ec.CertificateId) AS NumberOfCert
+FROM employees e
+LEFT join employee_skills es ON e.Id = es.EmployeeId
+LEFT JOIN employee_certificates ec ON e.Id = ec.EmployeeId
+GROUP BY e.Id, e.Name
+HAVING COUNT(DISTINCT es.SkillId) > COUNT(DISTINCT ec.CertificateId);
+   
+
+
+-- * 3 Write an SQL query to find the employees that have more than two certificates  (expected columns - EmplName) 
+
+select e.Name AS EmplName
+FROM employees e
+JOIN employee_certificates ec ON e.Id = ec.EmployeeId
+GROUP BY e.Id, e.Name
+HAVING COUNT(distinct ec.CertificateId) > 2;
+
+-- * 4 Print all employee names along with number of their certificates (expected columns - name, NumberOfCert) 
+
+select e.Name as name, COUNT(DISTINCT ec.CertificateId) AS NumberOfCert
+from employees e 
+left join employee_certificates ec on e.id= ec.EmployeeId 
+group by e.Name 
