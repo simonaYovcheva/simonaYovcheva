@@ -1,0 +1,130 @@
+
+ 
+ -- * 1 Изведете бройката на служителите, наети през последните 2 години и 6 месеца (expected columns - CountOfEmployees)
+
+select count(id) CountOfEmployees
+from employees e 
+where hiredate> ADDDATE(adddate(CURRENT_DATE, INTERVAL -2 year), INTERVAL -6 month );
+
+-- * 2 Изведете бройката на наетите служители по години и месеци (expected columns - year, month, CountOfEmployees)
+
+SELECT year(hiredate) AS year, 
+       month (HireDate) AS month,
+       count(id) CountOfEmployees
+FROM employees e 
+group by year, month 
+order by year, month asc;
+
+-- * 3 Изведете първо число на текущ месец/година (expected columns - FD ) 
+
+
+SELECT DATE_SUB(curdate() ,INTERVAL DAYOFMONTH(curdate())-1 DAY) AS 'FD';
+
+
+-- * 4 Изведете последното число на текущ месец (expected columns - LD)
+
+SELECT LAST_DAY(curdate()) AS LD;
+
+-- * 5 Изведете две колони - година и дата на която е подаден първия отпуск за годината (expected columns - year, FirstRequestDate)
+
+SELECT year(Requestdate) as year, Requestdate as FirstRequestDate
+FROM vacations
+group by year(Requestdate)
+
+
+-- * 6 Изведете две колони - име на служител и брой дни в които е работил/работи в компанията (expected columns - name, NumberOfDaysInCompany)
+
+select name,
+	case
+		when EndDate is not null  then datediff(EndDate, hiredate)
+		else datediff(now(), hiredate)
+	end as NumberOfDaysInCompany
+from employees e
+select name,
+	datediff(COALESCE(EndDate, now()), hiredate)  as NumberOfDaysInCompany
+from employees e
+
+-- * 7 Print the names of the skills and the number of the employees that have such skill (expected columns - name, CntEmployees)
+
+SELECT s.name, COUNT(e.id) AS CntEmployees
+FROM skills s
+LEFT JOIN employee_skills es ON s.id = es.SkillId 
+LEFT JOIN employees e ON es.employeeid = e.id
+GROUP BY s.id, s.Name ;
+
+select s.name, count(es.EmployeeId) as CntEmployees
+from skills s
+left join employee_skills es on es.SkillId = s.id
+group by s.name
+
+уловката е за всеки скил или всеки емплои да пребройм нещо , тогава изпозлваме лефт жоинт. например има скил, но в 
+момента няма емплои с такъв скил. за това лефт за да излезне скила
+
+SELECT s.name, COUNT(e.id) AS CntEmployees
+FROM skills s
+LEFT JOIN employee_skills es ON s.id = es.SkillId 
+LEFT JOIN employees e ON es.employeeid = e.id
+GROUP BY s.id, s.Name ;
+
+-- * 8 Print the total amount of salaries given to employees for each title (expected columns - TitleName, TotalAmountOfSalaries)
+
+select t.Name as Titlename,sum(ifnull(salary,0)) as TotalAmountOfSalaries
+from titles t
+left join employees e on t.Id = e.TitleId
+group by t.name
+
+ако има тайтъл който не го притежава никой. излиза нъл, но ни трябва 0. 0 пари харчим за тези тайтъли.
+
+-- * 9 Print the name of departments that have at least one employee that have requested vacation in 2012 (expected columns - name)
+
+SELECT d.name
+FROM departments d
+JOIN employees e ON d.id = e.departmentid
+JOIN vacations v ON e.id = v.employeeid
+WHERE YEAR(v.requestdate) = 2012
+GROUP BY d.id, d.name
+HAVING COUNT(DISTINCT e.id) > 0;
+
+-- * 10 Print the number of employees with approved vacation request in last two year (expected columns - CntEmployees)
+
+select count( distinct v.EmployeeId) as CntEmployees
+from employees e 
+join vacations v 
+on v.EmployeeId = e.Id 
+where V.Status = 'APPROVED' and (V.RequestDate > adddate(curdate(), interval -2 year ));
+
+-- * 11 Print the number of employees that have been on vacation more than 10 days for 2012 (expected columns - cnt)
+
+SELECT COUNT(DISTINCT e.id) AS cnt
+FROM employees
+join vacantion v on e.id= v.employeeid
+WHERE status = 'approved'
+and  (v.fromdate<='2012-12-31' and v.today >= '2012-01-01')
+and 
+case 
+when v.today >  = '2013-01-01' then DATEDIFF('2012-12-31, fromdate)
+when when v.fromdate < '2012-01-01' then DATEDIFF(v.today, '2012-01-01)
+when when v.fromdate >= '2012-01-01' and today <= 2012-12-31 then DATEDIFF(v.today, v.fromdate)
+end >10
+
+
+select count(distinct e.id) as cnt
+from employees e
+join vacations v on e.id = v.EmployeeId
+where status = 'approved'
+and (v.FromDate <='2012-12-31' and v.ToDate >= '2012-01-01')
+	and
+		case
+			when v.ToDate >= '2013-01-01' then datediff('2012-12-31', v.FromDate)
+			when v.FromDate < '2012-01-01' then datediff(v.todate, '2012-01-01')
+			when v.FromDate >= '2012-01-01' and then datediff(v.todate, '2012-01-01')
+		end > 10
+
+
+-- * 12 Print all departments without employees (expected columns - DepartmentName)
+
+select d.Name as DepartmentName
+from departments d 
+left join employees e 
+on d.Id  = e.DepartmentId 
+where e.DepartmentId  is null;
